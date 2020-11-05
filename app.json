@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "precificacao",
+    "name": "Precificação",
     "slug": "precificacao",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,9 +17,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.labella.precificacao"
     },
     "android": {
+        "package": "com.labella.precificacao",
+        "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
