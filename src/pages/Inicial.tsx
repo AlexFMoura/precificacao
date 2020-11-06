@@ -8,17 +8,14 @@ export default function Inicial() {
 
   function handleConfiguracao() {
     navigation.navigate('Configuracao');
-    console.log('Chegou aqui');
   }
 
   function handlePrecificacaoServico() {
     navigation.navigate('PrecificacaoServico');
-    console.log('Chegou aqui');
   }
 
   function handlePrecificacaoProduto() {
     navigation.navigate('PrecificacaoProduto');
-    console.log('Chegou aqui');
   }
   
 

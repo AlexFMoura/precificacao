@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView, TextInput, TouchableOpacity } from 'react-native-gesture-handler';
+import { AntDesign } from '@expo/vector-icons';
 
 import { TextInputMask } from 'react-native-masked-text'
 
@@ -76,6 +77,12 @@ export default function PrecificacaoProduto() {
   function handleResultadoFinal(custoVariavel: string, resultadoPassoTres: string) {
     // console.log(custoVariavel);
     // console.log(resultadoPassoTres);
+
+    if (custoVariavel === "0,00"){
+      Alert.alert('Infomação', 'É necessário o preenchimento de todos os valores!');
+      return;
+    }
+
     const mkp = (100 / (100 - parseFloat(resultadoPassoTres))).toFixed(2);
     // console.log(mkp);
 
@@ -83,14 +90,76 @@ export default function PrecificacaoProduto() {
 
     // console.log(precoVariavel);
 
-    Alert.alert("Resultado", `Valor do produto é R$ ${precoVariavel.toFixed(2).toString()}`);
+    Alert.alert('Resultado', `Valor do produto é R$ ${precoVariavel.toFixed(2).toString()}`);
+  }
+
+  function handleInformacao(comentario: string) {
+    let informacao: any;
+    let texto:any;
+
+    if (comentario === "passoUm") {
+      informacao = "1º Passo ";
+      texto = "Lançamento da despesa fixa e faturamento mensal!";
+    } else if (comentario === "despFixa") {
+      informacao = "Despesa Fixa ";
+      texto = "Somatório de todas as despesas fixas mensal. Ex: Aluguel, Salário, água, energia...!";
+    } else if (comentario === "faturamento") {
+      informacao = "Faturamento ";
+      texto = "Média dos 12 meses de faturamento!";
+    } else if (comentario === "resultadoPassoUm") {
+      informacao = "Resultado 1º Passo ";
+      texto = "Resultado em porcentagem da divisão entre Despesa Fixa pelo Faturamento em porcentagem!";
+    } else if (comentario === "passoDois") {
+      informacao = "2º Passo ";
+      texto = "Valor de custo do Produto!";
+    } else if (comentario === "custoVariavel") {
+      informacao = "Custo Variável ";
+      texto = "Valor do Produto!";
+    } else if (comentario === "passoTres") {
+      informacao = "3º Passo ";
+      texto = "Encontrar os percentuais das despesas!";
+    } else if (comentario === "imposto") {
+      informacao = "Imposto ";
+      texto = "Valor do imposto sobre produto, no MEI é zero!";
+    } else if (comentario === "comissao") {
+      informacao = "Comissão ";
+      texto = "Valor da porcentagem se houver a comissão!";
+    } else if (comentario === "txCartao") {
+      informacao = "Taxa Cartão ";
+      texto = "Valor da média da taxa se houver venda no cartão. Ex: Média da Tx de débito + Tx de crédito!";
+    } else if (comentario === "lucroDesejado") {
+      informacao = "Lucro Desejado ";
+      texto = "Valor que deseja lucrar sobre o produto, média de 15%!";
+    } else if (comentario === "resulPassoUm") {
+      informacao = "% Despesa Fixa ";
+      texto = "Valor da resultado do 1º Passo!";
+    } else if (comentario === "resultadoPassoTres") {
+      informacao = "Resultado 3º Passo ";
+      texto = "Somatório de todos os percentuais lançados!";
+    } else if (comentario === "passoQuatro") {
+      informacao = "Valor Final ";
+      texto = "Valor final do produto. Fórmula PV = CV * MKp!";
+    } else {
+      texto = "";
+    }
+
+    if (texto !== "") {
+      Alert.alert(informacao, texto);
+    }
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
-      <Text style={styles.title}>1º Passo</Text>
+      
+      <View style={styles.informacao}>
+        <Text style={styles.title}>1º Passo</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("passoUm")} />
+      </View>      
 
-      <Text style={styles.label}>Despesa Fixa R$</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Despesa Fixa R$</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("despFixa")} />
+      </View>      
       <TextInputMask
         style={styles.input}
         type={'money'}
@@ -105,7 +174,10 @@ export default function PrecificacaoProduto() {
         onChangeText={setDespesaFixa}
       />
 
-      <Text style={styles.label}>Faturamento R$</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Faturamento R$</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("faturamento")} />
+      </View>
       <TextInputMask
         style={styles.input}
         type={'money'}
@@ -120,20 +192,29 @@ export default function PrecificacaoProduto() {
         onChangeText={setFaturamento}
       />
 
-      <Text style={styles.label}>Resultado Passo 1</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Resultado Passo 1</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("resultadoPassoUm")} />
+      </View>
       <TextInput
         style={styles.input}
         value={resultadoPassoUm}
       />      
 
+      
       <RectButton style={styles.calculoButton} onPress={() => {handleCalculoPassoUm(despesaFixa, faturamento)}}>
         <Text style={styles.nextButtonText}>Cálculo</Text>
       </RectButton>
 
+      <View style={styles.informacao}>
+        <Text style={styles.titleAjustado}>2º Passo</Text>
+        <AntDesign style={styles.btnInformacaoAjustado} name="exclamationcircleo" onPress={() => handleInformacao("passoDois")} />
+      </View>
 
-      <Text style={styles.titleAjustado}>2º Passo</Text>
-
-      <Text style={styles.label}>Custo Variável</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Custo Variável</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("custoVariavel")} />
+      </View>
       <TextInputMask
         style={styles.input}
         type={'money'}
@@ -148,9 +229,15 @@ export default function PrecificacaoProduto() {
         onChangeText={setCustoVariavel}
       />
 
-      <Text style={styles.title}>3º Passo</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.title}>3º Passo</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("passoTres")} />
+      </View>
 
-      <Text style={styles.label}>Imposto</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Imposto</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("imposto")} />
+      </View>
       <TextInput
         keyboardType="numeric"
         style={styles.input}
@@ -158,7 +245,10 @@ export default function PrecificacaoProduto() {
         onChangeText={setImposto}
       />
 
-      <Text style={styles.label}>Comissão</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Comissão</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("comissao")} />
+      </View>
       <TextInput
         keyboardType="numeric"
         style={styles.input}
@@ -166,7 +256,10 @@ export default function PrecificacaoProduto() {
         onChangeText={setComissao}
       />
 
-      <Text style={styles.label}>Taxa de Cartão</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Taxa de Cartão</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("txCartao")} />
+      </View>
       <TextInput
         keyboardType="numeric"
         style={styles.input}
@@ -174,7 +267,10 @@ export default function PrecificacaoProduto() {
         onChangeText={setTaxaCartao}
       />
 
-      <Text style={styles.label}>Lucro Desejado</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Lucro Desejado</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("lucroDesejado")} />
+      </View>
       <TextInput
         keyboardType="numeric"
         style={styles.input}
@@ -182,7 +278,10 @@ export default function PrecificacaoProduto() {
         onChangeText={setLucroDesejado}
       />
 
-      <Text style={styles.label}>% da Despesa Fixa</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>% da Despesa Fixa</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("resulPassoUm")} />
+      </View>
       <TextInput
         keyboardType="numeric"
         style={styles.input}
@@ -190,7 +289,10 @@ export default function PrecificacaoProduto() {
         enabled={true}
       />    
 
-      <Text style={styles.label}>Resultado Passo 3</Text>
+      <View style={styles.informacao}>
+        <Text style={styles.label}>Resultado Passo 3</Text>
+        <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("resultadoPassoTres")} />
+      </View>
       <TextInput
         style={styles.input}
         value={resultadoPassoTres}
@@ -203,7 +305,10 @@ export default function PrecificacaoProduto() {
         <Text style={styles.nextButtonText}>Cálculo</Text>
       </RectButton>  
 
-      <Text style={styles.titleAjustado}>4º Passo</Text>                        
+      <View style={styles.informacao}>
+        <Text style={styles.titleAjustado}>4º Passo</Text>                        
+        <AntDesign style={styles.btnInformacaoAjustado} name="exclamationcircleo" onPress={() => handleInformacao("passoQuatro")} />
+      </View>
 
       <RectButton style={styles.nextButton} onPress={() => handleResultadoFinal(custoVariavel, resultadoPassoTres)}>
         <Text style={styles.nextButtonText}>Resultado</Text>
@@ -217,6 +322,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  informacao: {  
+    flexDirection: "row",   
+  },
+
   title: {
     color: '#5c8599',
     fontSize: 24,
@@ -224,7 +333,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     paddingBottom: 24,
     borderBottomWidth: 0.8,
-    borderBottomColor: '#D3E2E6'
+    borderBottomColor: '#D3E2E6',    
   },
 
   titleAjustado: {
@@ -235,7 +344,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     paddingBottom: 24,
     borderBottomWidth: 0.8,
-    borderBottomColor: '#D3E2E6'
+    borderBottomColor: '#D3E2E6',
   },  
 
   label: {
@@ -243,6 +352,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito_600SemiBold',
     marginBottom: 8,
   },
+
+  btnInformacao: {
+    fontSize: 15, 
+    color: "#5c8599",
+    left: 5,
+  },
+
+  btnInformacaoAjustado: {
+    fontSize: 15, 
+    color: "#5c8599",
+    left: 5,
+    top: 30
+  },  
 
   comment: {
     fontSize: 11,
