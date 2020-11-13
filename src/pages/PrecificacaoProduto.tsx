@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView, TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { AntDesign } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { TextInputMask } from 'react-native-masked-text'
+import AsyncStorage from '@react-native-community/async-storage';
+import DatePicker from '../components/DatePicker';
+import Repository from '../services/Repository';
 
 
 export default function PrecificacaoProduto() {
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+
+  const [data, setData] = useState('');
   const [ despesaFixa, setDespesaFixa] = useState('0,00');
   const [ faturamento, setFaturamento ] = useState('0,00');
   const [ custoVariavel, setCustoVariavel ] = useState('0,00');
@@ -18,8 +27,29 @@ export default function PrecificacaoProduto() {
   const [ resultadoPassoTres, setResultadoPassoTres ] = useState('');
   const [ resultadoPassoQuatro, setResultadoPassoQuatro ] = useState('');
 
-  function handleCalculoPassoUm(desFixa: string, fat: string) {
+  const onChange = (event: any, selectedDate: any) => {    
 
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    setDate(date);
+
+    // console.log(currentDate.toLocaleDateString().split('/'));
+    let text = currentDate.toLocaleDateString().split('/');
+    // console.log(text[0]+'/'+text[2]);
+    setData(text[0]+'/'+text[2]);
+  };
+
+  const showMode = (currentMode: any) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode('date');
+  }  
+
+
+  function handleCalculoPassoUm(desFixa: string, fat: string) {
     console.log(desFixa);
 
     if(desFixa === '0,00'){
@@ -148,15 +178,56 @@ export default function PrecificacaoProduto() {
     }
   }
 
+  async function handleBuscar(data: string){
+    console.log(data);
+    
+    await Repository.findById(data)
+      .then((res: any) => {
+        if (res._array.length > 0 && res != undefined) {
+          let result = JSON.stringify(res._array[0]);
+          let dadosBD = JSON.parse(result);
+          setDespesaFixa(dadosBD.despesa_fixa);
+          setFaturamento(dadosBD.faturamento_mensal);
+          setImposto(dadosBD.imposto);
+        } else {
+          Alert.alert('Informação', 'Não existe dados gravados para esse mês!');
+          return
+        }
+    }), (error: Error) => {
+      console.log(error);
+    };
+  }  
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
       
       <View style={styles.informacao}>
         <Text style={styles.title}>1º Passo</Text>
         <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("passoUm")} />
-      </View>      
+      </View>     
 
-      <View style={styles.informacao}>
+      <Text style={styles.label}>Busca dados fechamento do mês</Text>
+      <View style={styles.data}>              
+        {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            display="default"
+            onChange={onChange}
+            // dateFormat="MM-YYYY"
+          />
+        )}      
+        <TextInput style={styles.inputData} value={data} />
+        <AntDesign style={styles.icon} name="calendar" onPress={showDatepicker}/>
+      </View>
+
+      <RectButton style={styles.btnBuscar} onPress={() => handleBuscar(data)}>
+        <Text style={styles.btnText}>Buscar</Text>
+      </RectButton>            
+
+      <View style={styles.informacaoAjustada}>
         <Text style={styles.label}>Despesa Fixa R$</Text>
         <AntDesign style={styles.btnInformacao} name="exclamationcircleo" onPress={() => handleInformacao("despFixa")} />
       </View>      
@@ -199,8 +270,7 @@ export default function PrecificacaoProduto() {
       <TextInput
         style={styles.input}
         value={resultadoPassoUm}
-      />      
-
+      />    
       
       <RectButton style={styles.calculoButton} onPress={() => {handleCalculoPassoUm(despesaFixa, faturamento)}}>
         <Text style={styles.nextButtonText}>Cálculo</Text>
@@ -326,6 +396,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",   
   },
 
+  informacaoAjustada: {
+    flexDirection: "row", 
+    marginTop: 30,
+  },
+
+  data: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  
+  icon: {
+    right: 10,
+    fontSize: 50,
+    color: "#5c8599"
+  },   
+
   title: {
     color: '#5c8599',
     fontSize: 24,
@@ -383,49 +469,16 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
 
-  inputCurrency: {
+  inputData: {
     backgroundColor: '#fff',
+    borderWidth: 1.4,
     borderColor: '#d3e2e6',
-    borderWidth: 1.4,
     borderRadius: 20,
     height: 56,
-    marginBottom: 20,
-    marginTop: 20,
-    padding: 20,
-    textAlign: 'right',
-    width: 300,
-  },
-
-  uploadedImagesContainer: {
-    flexDirection: 'row',
-  },
-
-  uploadedImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    marginBottom: 32,
-    marginRight: 8,
-  },
-
-  imagesInput: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderStyle: 'dashed',
-    borderColor: '#96D2F0',
-    borderWidth: 1.4,
-    borderRadius: 20,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-
-  switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 16,
-  },
+    width: 280,    
+    marginBottom: 10,
+    paddingHorizontal: 24,
+  },  
 
   nextButton: {
     backgroundColor: '#15c3d6',
@@ -449,5 +502,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 56,
     marginTop: 5,    
-  }
+  },
+
+  btnText: {
+    fontFamily: 'Nunito_800ExtraBold',
+    fontSize: 16,
+    color: '#FFF',
+  },
+
+  btnBuscar: {
+    backgroundColor: '#15c3d6',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 56,
+    marginTop: 5,   
+  },
 })

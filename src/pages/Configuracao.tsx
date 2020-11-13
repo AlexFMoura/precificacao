@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Keyboard, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { RectButton, TextInput } from 'react-native-gesture-handler';
 import { TextInputMask } from 'react-native-masked-text';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { AntDesign } from '@expo/vector-icons';
 
+import Repository from '../services/Repository';
+
 
 export default function Configuracao() {
-  const [date, setDate] = useState(new Date());
-  const [mode, setMode] = useState('date');
-  const [show, setShow] = useState(false);
-  const [data, setData] = useState('');
-  const [ despesaFixa, setDespesaFixa] = useState('0,00');
+
+  const [ date, setDate ] = useState(new Date());
+  const [ mode, setMode ] = useState('date');
+  const [ show, setShow ] = useState(false);
+
+  const [ data, setData ] = useState('');
+  const [ despesaFixa, setDespesaFixa ] = useState('0,00');
   const [ faturamento, setFaturamento ] = useState('0,00');
+  const [ taxaCartao, setTaxaCartao ] = useState('0');
 
   const onChange = (event: any, selectedDate: any) => {    
 
@@ -34,47 +39,106 @@ export default function Configuracao() {
 
   const showDatepicker = () => {
     showMode('date');
+    limpaDados();
+  };   
 
-  };  
-
-  function handleSalvar(data: string, despesaFixa: string, faturamento: string){
+  async function handleSalvar(data: string, despesaFixa: string, faturamento: string, taxaCartao: string){
     console.log(data, despesaFixa, faturamento);
-    const dadosBD = {
-      mes: data,
-      despesaFixa: despesaFixa,
-      faturamento: faturamento
+    let dadosBD = {
+      mes_ano: data,
+      despesa_fixa: despesaFixa,
+      faturamento_mensal: faturamento,
+      taxa_cartao: taxaCartao
     }
 
-    AsyncStorage.setItem('DADOS', JSON.stringify(dadosBD))
+    // console.log(dadosBD);
+
+    try {
+      await Repository.addData(dadosBD);
+      Keyboard.dismiss();
+      Alert.alert("Sucesso", "Dados gravados com sucesso!");
+      limpaDados();
+    } catch {
+      Alert.alert("Error", "Os dados não foram gravados!");
+    }
+
+    // AsyncStorage.setItem('DADOS', JSON.stringify(dadosBD));   
     
   }
 
-  async function handleBuscar(data: string){
-    console.log(data);
-    // await AsyncStorage.getItem('mes').then((value) => {
-    //   console.log(value);
-    // });
-    try {
-      const value = await AsyncStorage.getItem('DADOS');
-      console.log(value);
-      if (value !== null) {
-        // We have data!!
-        let dadosBD = JSON.parse(value);
-        console.log(dadosBD);
-        console.log(dadosBD.mes);
-        setDespesaFixa(dadosBD.despesaFixa);
-        setFaturamento(dadosBD.faturamento);
-      }
-    } catch (error) {
-      // Error retrieving data
-    }
+  function limpaDados() {
+    setDespesaFixa('0,00');
+    setFaturamento('0,00');
+    setTaxaCartao('0');
   }
 
+  async function handleBuscar(data: string){
+    // console.log(data);
+    
+    await Repository.findById(data)
+      .then((res: any) => {
+        console.log(res._array);
+        if (res._array.length > 0 && res != undefined) {
+          let result = JSON.stringify(res._array[0]);
+          let dadosBD = JSON.parse(result);
+          setDespesaFixa(dadosBD.despesa_fixa);
+          setFaturamento(dadosBD.faturamento_mensal);
+          setTaxaCartao(dadosBD.taxa_cartao);
+        } else {
+          limpaDados();
+          Alert.alert('Informação', 'Não existe dados gravados para esse mês!');
+        }    
+    }), (error: Error) => {
+      console.log(error);
+    };
+  }
+
+  async function handleExcluir(data: string){
+    // console.log(data);
+    
+    try {
+      await Repository.deleteById(data);
+      Alert.alert('Sucesso', 'Dados excluidos com sucesso!');
+      setDespesaFixa(despesaFixa);
+      setFaturamento(faturamento);
+      setTaxaCartao(taxaCartao);
+    } catch {
+      Alert.alert('Error', 'Erro ao excluir os dados!')
+    } 
+      
+  }  
+
+  async function handleAlterar(data: string, despesaFixa: string, faturamento: string, taxaCartao: string){
+
+    // console.log(data, despesaFixa, faturamento);
+    let dadosBD = {
+      mes_ano: data,
+      despesa_fixa: despesaFixa,
+      faturamento_mensal: faturamento,
+      taxa_cartao: taxaCartao
+    }
+
+    // console.log(dadosBD);
+
+    try {
+      await Repository.updateById(dadosBD);
+      Keyboard.dismiss();
+      Alert.alert("Sucesso", "Dados alterados com sucesso!");
+      limpaDados();
+    } catch {
+      Alert.alert("Error", "Os dados não foram alterados!");
+    }
+
+    // AsyncStorage.setItem('DADOS', JSON.stringify(dadosBD));   
+    
+  }  
+
   return (
-    <View  style={styles.container} >
+    <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
+      
       <Text style={styles.label}>Data Fechamento</Text>
-      <View style={styles.data}>
-              
+      {/* <DatePicker value={setData} state={props.navigation.state}/> */}
+      <View style={styles.data}>              
         {show && (
           <DateTimePicker
             testID="dateTimePicker"
@@ -83,12 +147,12 @@ export default function Configuracao() {
             is24Hour={true}
             display="default"
             onChange={onChange}
-            dateFormat="MM-YYYY"
+            // dateFormat="MM-YYYY"
           />
         )}      
-        <TextInput style={styles.inputData} value={data}/>
-        <AntDesign name="calendar" size={50} color="black" onPress={showDatepicker}/>
-      </View>      
+        <TextInput style={styles.inputData} value={data} />
+        <AntDesign style={styles.icon} name="calendar" onPress={showDatepicker}/>
+      </View>       
 
       <Text style={styles.label}>Despesa Fixa R$</Text>     
       <TextInputMask
@@ -119,27 +183,34 @@ export default function Configuracao() {
         value={faturamento}
         onChangeText={setFaturamento}
       />
+
+      <Text style={styles.label}>Taxa de Cartão</Text>
+      <TextInput
+        keyboardType="numeric"
+        style={styles.input}
+        value={taxaCartao}
+        onChangeText={setTaxaCartao}
+      />
       
-      <RectButton style={styles.btnSalvar} onPress={() => handleSalvar(data, despesaFixa, faturamento)}>
+      <RectButton style={styles.btnAcoes} onPress={() => handleSalvar(data, despesaFixa, faturamento, taxaCartao)}>
         <Text style={styles.btnText}>Salvar</Text>
       </RectButton>
-      <RectButton style={styles.btnSalvar} onPress={() => handleBuscar(data)}>
+      <RectButton style={styles.btnAcoes} onPress={() => handleBuscar(data)}>
         <Text style={styles.btnText}>Buscar</Text>
       </RectButton>
-      <RectButton style={styles.btnSalvar} onPress={() => {}}>
+      <RectButton style={styles.btnAcoes} onPress={() => handleAlterar(data, despesaFixa, faturamento, taxaCartao)}>
         <Text style={styles.btnText}>Alterar</Text>
       </RectButton> 
-      <RectButton style={styles.btnExcluir} onPress={() => {}}>
+      <RectButton style={styles.btnExcluir} onPress={() => handleExcluir(data)}>
         <Text style={styles.btnText}>Excluir</Text>
       </RectButton>           
-    </View >
+    </ScrollView >
   )
 }
       
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
   },
 
   data: {
@@ -147,17 +218,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
+  icon: {
+    right: 10,
+    fontSize: 50,
+    color: "#5c8599"
+  },  
+
   label: {
     color: '#8fa7b3',
     fontFamily: 'Nunito_600SemiBold',
-    marginBottom: 10,
-    marginTop: 10,
-    left: 10
+    marginBottom: 8,
   },
 
   comment: {
     fontSize: 11,
     color: '#8fa7b3',
+  },
+
+  input: {
+    backgroundColor: '#fff',
+    borderWidth: 1.4,
+    borderColor: '#d3e2e6',
+    borderRadius: 20,
+    height: 56,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    marginBottom: 16,
+    textAlignVertical: 'top',
   },
 
   inputData: {
@@ -166,23 +253,10 @@ const styles = StyleSheet.create({
     borderColor: '#d3e2e6',
     borderRadius: 20,
     height: 56,
-    left: 10,
-    width: 300,    
+    width: 280,    
     marginBottom: 10,
     paddingHorizontal: 24,
   },  
-
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1.4,
-    borderColor: '#d3e2e6',
-    borderRadius: 20,
-    height: 56,
-    left: 10,
-    width: 350,    
-    marginBottom: 10,
-    paddingHorizontal: 24,
-  },
 
   btnText: {
     fontFamily: 'Nunito_800ExtraBold',
@@ -190,15 +264,13 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
 
-  btnSalvar: {
+  btnAcoes: {
     backgroundColor: '#15c3d6',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     height: 56,
-    marginTop: 30,  
-    left: 10,
-    width: 350,      
+    marginTop: 20,     
   },
 
   btnExcluir: {
@@ -207,8 +279,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: 56,
-    marginTop: 30,  
-    left: 10,
-    width: 350, 
+    marginTop: 30,      
   }
 })

@@ -1,0 +1,3 @@
+APK (expo build:android -t apk)
+Android App Bundle (expo build:android -t app-bundle)
+IOS expo build:ios

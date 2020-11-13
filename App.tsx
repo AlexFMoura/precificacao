@@ -1,4 +1,5 @@
 import React from 'react';
+import DatabaseInit from './src/database/DatabaseInit';
 import { 
   useFonts, 
   Nunito_600SemiBold, 
@@ -8,7 +9,11 @@ import {
 import Routes from './src/routes';
 
 
+
 export default function App() {
+
+  new DatabaseInit
+  console.log("initialize database") 
 
   let [fontsLoaded] = useFonts({
     Nunito_600SemiBold,
