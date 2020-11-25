@@ -5,8 +5,6 @@ import { AntDesign } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { TextInputMask } from 'react-native-masked-text'
-import AsyncStorage from '@react-native-community/async-storage';
-import DatePicker from '../components/DatePicker';
 import Repository from '../services/Repository';
 
 
@@ -390,6 +388,7 @@ export default function PrecificacaoProduto() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#C9880B'
   },
 
   informacao: {  
@@ -409,11 +408,13 @@ const styles = StyleSheet.create({
   icon: {
     right: 10,
     fontSize: 50,
-    color: "#5c8599"
+    // color: '#5c8599',
+    color: '#000000',
   },   
 
   title: {
-    color: '#5c8599',
+    // color: '#5c8599',
+    color: '#000000',
     fontSize: 24,
     fontFamily: 'Nunito_700Bold',
     marginBottom: 30,
@@ -423,7 +424,8 @@ const styles = StyleSheet.create({
   },
 
   titleAjustado: {
-    color: '#5c8599',
+    // color: '#5c8599',
+    color: '#000000',
     fontSize: 24,
     fontFamily: 'Nunito_700Bold',
     marginTop: 30,
@@ -434,28 +436,26 @@ const styles = StyleSheet.create({
   },  
 
   label: {
-    color: '#8fa7b3',
+    // color: '#8fa7b3',
+    color: '#000000',
     fontFamily: 'Nunito_600SemiBold',
     marginBottom: 8,
   },
 
   btnInformacao: {
+    // color: '#5c8599',
+    color: '#000000',
     fontSize: 15, 
-    color: "#5c8599",
     left: 5,
   },
 
   btnInformacaoAjustado: {
+    // color: '#5c8599',
+    color: '#000000',
     fontSize: 15, 
-    color: "#5c8599",
     left: 5,
     top: 30
   },  
-
-  comment: {
-    fontSize: 11,
-    color: '#8fa7b3',
-  },
 
   input: {
     backgroundColor: '#fff',
@@ -481,7 +481,8 @@ const styles = StyleSheet.create({
   },  
 
   nextButton: {
-    backgroundColor: '#15c3d6',
+    // backgroundColor: '#15c3d6',
+    backgroundColor: '#000000',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -490,13 +491,15 @@ const styles = StyleSheet.create({
   },
 
   nextButtonText: {
+    color: '#C9880B',
     fontFamily: 'Nunito_800ExtraBold',
     fontSize: 16,
-    color: '#FFF',
+    // color: '#FFF',
   },
 
   calculoButton: {
-    backgroundColor: '#15c3d6',
+    // backgroundColor: '#15c3d6',
+    backgroundColor: '#000000',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -505,13 +508,15 @@ const styles = StyleSheet.create({
   },
 
   btnText: {
+    color: '#C9880B',
     fontFamily: 'Nunito_800ExtraBold',
     fontSize: 16,
-    color: '#FFF',
+    // color: '#FFF',
   },
 
   btnBuscar: {
-    backgroundColor: '#15c3d6',
+    // backgroundColor: '#15c3d6',
+    backgroundColor: '#000000',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',

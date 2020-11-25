@@ -43,7 +43,7 @@ export default function Configuracao() {
   };   
 
   async function handleSalvar(data: string, despesaFixa: string, faturamento: string, taxaCartao: string){
-    console.log(data, despesaFixa, faturamento);
+    // console.log(data, despesaFixa, faturamento, taxaCartao);
     let dadosBD = {
       mes_ano: data,
       despesa_fixa: despesaFixa,
@@ -51,9 +51,27 @@ export default function Configuracao() {
       taxa_cartao: taxaCartao
     }
 
+  //  console.log(dadosBD);
+
+    if (despesaFixa === '0,00' || faturamento === '0,00') {
+      Alert.alert("Informação", "Favor inserir os dados!");
+      return;
+    }
+
     // console.log(dadosBD);
 
+    let temDados = await Repository.findById(data);
+
+    // console.log(temDados);
+
+    if(temDados){
+      Alert.alert('Informação', 'Já existe dados gravados para esse mês!');
+      limpaDados();
+      return
+    };    
+
     try {
+      // console.log(dadosBD);
       await Repository.addData(dadosBD);
       Keyboard.dismiss();
       Alert.alert("Sucesso", "Dados gravados com sucesso!");
@@ -61,21 +79,19 @@ export default function Configuracao() {
     } catch {
       Alert.alert("Error", "Os dados não foram gravados!");
     }
-
-    // AsyncStorage.setItem('DADOS', JSON.stringify(dadosBD));   
-    
+   
   }
 
   function limpaDados() {
     setDespesaFixa('0,00');
     setFaturamento('0,00');
-    setTaxaCartao('0');
+    setTaxaCartao('0,00');
   }
 
   async function handleBuscar(data: string){
     // console.log(data);
     
-    await Repository.findById(data)
+    Repository.findById(data)
       .then((res: any) => {
         console.log(res._array);
         if (res._array.length > 0 && res != undefined) {
@@ -99,9 +115,7 @@ export default function Configuracao() {
     try {
       await Repository.deleteById(data);
       Alert.alert('Sucesso', 'Dados excluidos com sucesso!');
-      setDespesaFixa(despesaFixa);
-      setFaturamento(faturamento);
-      setTaxaCartao(taxaCartao);
+      limpaDados();
     } catch {
       Alert.alert('Error', 'Erro ao excluir os dados!')
     } 
@@ -118,8 +132,6 @@ export default function Configuracao() {
       taxa_cartao: taxaCartao
     }
 
-    // console.log(dadosBD);
-
     try {
       await Repository.updateById(dadosBD);
       Keyboard.dismiss();
@@ -129,8 +141,6 @@ export default function Configuracao() {
       Alert.alert("Error", "Os dados não foram alterados!");
     }
 
-    // AsyncStorage.setItem('DADOS', JSON.stringify(dadosBD));   
-    
   }  
 
   return (
@@ -185,9 +195,16 @@ export default function Configuracao() {
       />
 
       <Text style={styles.label}>Taxa de Cartão</Text>
-      <TextInput
-        keyboardType="numeric"
+      <TextInputMask
         style={styles.input}
+        type={'money'}
+        options={{
+          precision: 2,
+          separator: ',',
+          delimiter: '',
+          unit: '',
+          suffixUnit: ''
+        }}
         value={taxaCartao}
         onChangeText={setTaxaCartao}
       />
@@ -211,6 +228,7 @@ export default function Configuracao() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#C9880B'
   },
 
   data: {
@@ -221,18 +239,21 @@ const styles = StyleSheet.create({
   icon: {
     right: 10,
     fontSize: 50,
-    color: "#5c8599"
+    // color: "#5c8599"
+    color: '#000000',
   },  
 
   label: {
-    color: '#8fa7b3',
+    // color: '#8fa7b3',
     fontFamily: 'Nunito_600SemiBold',
     marginBottom: 8,
+    color: '#000000',
   },
 
   comment: {
     fontSize: 11,
-    color: '#8fa7b3',
+    // color: '#8fa7b3',
+    color: '#000000',
   },
 
   input: {
@@ -261,11 +282,13 @@ const styles = StyleSheet.create({
   btnText: {
     fontFamily: 'Nunito_800ExtraBold',
     fontSize: 16,
-    color: '#FFF',
+    // color: '#FFF',
+    color: '#C9880B'
   },
 
   btnAcoes: {
-    backgroundColor: '#15c3d6',
+    // backgroundColor: '#15c3d6',
+    backgroundColor: '#000000',
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',

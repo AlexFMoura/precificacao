@@ -20,18 +20,19 @@ export default function Header(props: HeaderProps){
   return (
     <View style={styles.container}>
       <BorderlessButton onPress={navigation.goBack}>
-        <Feather name="arrow-left" size={24} color={"#15B6D6"} />
+        <Feather name="arrow-left" size={24} color={"#1336EE"} /> 
       </BorderlessButton>
-
+      {/* color={"#15B6D6} */}
       <Text style={styles.title}>{props.title}</Text>
 
       { props.showCancel ? (
         <BorderlessButton onPress={handleGoBackToAppHome}>
-          <Feather name="x" size={24} color={"#ff669d"} />
+          <Feather name="x" size={24} color={"#ff0000"} />
         </BorderlessButton>
       ) : (
         <View />
       )}
+      {/* color={"#ff669d"} */}
       
     </View>
   )
@@ -41,18 +42,20 @@ export default function Header(props: HeaderProps){
 const styles = StyleSheet.create({
   container: {
     padding: 24,
-    backgroundColor: '#f9fafc',
-    borderBottomWidth: 1,
-    borderColor: '#dde3f0',
+    // backgroundColor: '#f9fafc',
+    // borderColor: '#dde3f0',
+    backgroundColor: '#C9880B',
+    borderColor: '#C9880B',
+    borderBottomWidth: 1,    
     paddingTop: 44,
-
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'Nunito_600SemiBold',
-    color: '#8fa7b3',
+    fontFamily: 'Nunito_700Bold',
+    // color: '#8fa7b3',
+    color: '#000000',
     fontSize: 16,
   },
 })

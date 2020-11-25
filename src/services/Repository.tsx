@@ -15,15 +15,8 @@ interface dadosFaturamento {
 
 export default class Repository {
 
-  static addData(param: dadosFaturamento) {
+  static addData(param: any) {
     console.log(param);
-
-    let temDados = this.findById(param.mes_ano);
-
-    if(temDados){
-      Alert.alert('Informação', 'Já existe dados gravados para esse mês!');
-      return
-    };
 
     return new Promise((resolve, reject ) => db.transaction(
       tx => {
@@ -43,7 +36,7 @@ export default class Repository {
   }
 
   static findById(param: string){
-    // console.log(param);
+    console.log(param);
     return new Promise((resolve, reject) => db.transaction(tx => {
       tx.executeSql(`select * from ${table} where mes_ano=?`, 
         [param], (_, { rows }) => {
@@ -58,7 +51,7 @@ export default class Repository {
   }
 
   static deleteById(param: string){
-    console.log('excluir' + param);
+    console.log('excluir ' + param);
     db.transaction(tx => {
       tx.executeSql(`delete from ${table} where mes_ano=?`, 
         [param], (_, { rows }) => {
