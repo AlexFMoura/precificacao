@@ -8,6 +8,8 @@ import { AntDesign } from '@expo/vector-icons';
 
 import Repository from '../services/Repository';
 
+import firebase from '../../firebase';
+
 
 export default function Configuracao() {
 
@@ -19,6 +21,8 @@ export default function Configuracao() {
   const [ despesaFixa, setDespesaFixa ] = useState('0,00');
   const [ faturamento, setFaturamento ] = useState('0,00');
   const [ taxaCartao, setTaxaCartao ] = useState('0');
+
+  const [ dados, setDados ] = useState('');
 
   const onChange = (event: any, selectedDate: any) => {    
 
@@ -60,19 +64,29 @@ export default function Configuracao() {
 
     // console.log(dadosBD);
 
-    let temDados = await Repository.findById(data);
+    // let temDados = await Repository.findById(data);
 
-    // console.log(temDados);
+    // // console.log(temDados);
 
-    if(temDados){
-      Alert.alert('Informação', 'Já existe dados gravados para esse mês!');
-      limpaDados();
-      return
-    };    
+    // if(temDados){
+    //   Alert.alert('Informação', 'Já existe dados gravados para esse mês!');
+    //   limpaDados();
+    //   return
+    // };    
+
+    const idMesAno = data.replace('/','');
+
+    console.log(idMesAno);
 
     try {
       // console.log(dadosBD);
-      await Repository.addData(dadosBD);
+      // await Repository.addData(dadosBD);
+      await firebase.database().ref(`precificacao/${idMesAno}`).push({
+        mes_ano: data,
+        despesa_fixa: despesaFixa,
+        faturamento_mensal: faturamento,
+        taxa_cartao: taxaCartao        
+      })
       Keyboard.dismiss();
       Alert.alert("Sucesso", "Dados gravados com sucesso!");
       limpaDados();
@@ -89,24 +103,44 @@ export default function Configuracao() {
   }
 
   async function handleBuscar(data: string){
+    const idMesAno = data.replace('/','');
+
+    console.log(idMesAno);
+
+    firebase.database()
+    .ref(`precificacao/${idMesAno}`)
+    .on('value', snapshot => {
+      console.log(snapshot.key);
+      // let result = JSON.stringify(snapshot.val().mes_ano);
+      // console.log('User data: ', result[1]);
+      // let dadosBD = JSON.parse(result);
+      // console.log('User data: ', dadosBD );
+    });
+
     // console.log(data);
+
+    // try {
+    //   await firebase.database().ref('/precificacao').
+    // } catch {
+
+    // }
     
-    Repository.findById(data)
-      .then((res: any) => {
-        console.log(res._array);
-        if (res._array.length > 0 && res != undefined) {
-          let result = JSON.stringify(res._array[0]);
-          let dadosBD = JSON.parse(result);
-          setDespesaFixa(dadosBD.despesa_fixa);
-          setFaturamento(dadosBD.faturamento_mensal);
-          setTaxaCartao(dadosBD.taxa_cartao);
-        } else {
-          limpaDados();
-          Alert.alert('Informação', 'Não existe dados gravados para esse mês!');
-        }    
-    }), (error: Error) => {
-      console.log(error);
-    };
+    // Repository.findById(data)
+    //   .then((res: any) => {
+    //     console.log(res._array);
+    //     if (res._array.length > 0 && res != undefined) {
+    //       let result = JSON.stringify(res._array[0]);
+    //       let dadosBD = JSON.parse(result);
+    //       setDespesaFixa(dadosBD.despesa_fixa);
+    //       setFaturamento(dadosBD.faturamento_mensal);
+    //       setTaxaCartao(dadosBD.taxa_cartao);
+    //     } else {
+    //       limpaDados();
+    //       Alert.alert('Informação', 'Não existe dados gravados para esse mês!');
+    //     }    
+    // }), (error: Error) => {
+    //   console.log(error);
+    // };
   }
 
   async function handleExcluir(data: string){
@@ -157,7 +191,7 @@ export default function Configuracao() {
             is24Hour={true}
             display="default"
             onChange={onChange}
-            // dateFormat="MM-YYYY"
+            dateFormat="MM-YYYY"
           />
         )}      
         <TextInput style={styles.inputData} value={data} />
