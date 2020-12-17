@@ -21,8 +21,9 @@ export default function Configuracao() {
   const [ despesaFixa, setDespesaFixa ] = useState('0,00');
   const [ faturamento, setFaturamento ] = useState('0,00');
   const [ taxaCartao, setTaxaCartao ] = useState('0');
+  const [ key, setKey ] = useState();
 
-  const [ dados, setDados ] = useState('');
+  const [ dados, setDados ] = useState<[]>([]);
 
   const onChange = (event: any, selectedDate: any) => {    
 
@@ -107,24 +108,19 @@ export default function Configuracao() {
 
     console.log(idMesAno);
 
+    /*Banco de Dados FireBase realtime */
     firebase.database()
-    .ref(`precificacao/${idMesAno}`)
-    .on('value', snapshot => {
-      console.log(snapshot.key);
-      // let result = JSON.stringify(snapshot.val().mes_ano);
-      // console.log('User data: ', result[1]);
-      // let dadosBD = JSON.parse(result);
-      // console.log('User data: ', dadosBD );
-    });
+      .ref(`precificacao/${idMesAno}`)
+      .on('value', function(snap) {
+        snap.forEach(function(precificacaoSnap) {
+          console.log( precificacaoSnap.val().mes_ano);
+          setDespesaFixa(precificacaoSnap.val().despesa_fixa);
+          setFaturamento(precificacaoSnap.val().faturamento_mensal);
+          setTaxaCartao(precificacaoSnap.val().taxa_cartao);        
+      });
+    })
 
-    // console.log(data);
-
-    // try {
-    //   await firebase.database().ref('/precificacao').
-    // } catch {
-
-    // }
-    
+    /*Banco de Dados local */
     // Repository.findById(data)
     //   .then((res: any) => {
     //     console.log(res._array);
